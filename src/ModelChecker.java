@@ -15,6 +15,7 @@ public class ModelChecker {
         try {
             Scanner input = new Scanner(inputFile);
             StateSpaceParser.parseStates(input);
+            input.close();
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
