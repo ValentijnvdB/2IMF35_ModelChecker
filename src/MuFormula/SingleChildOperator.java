@@ -12,6 +12,10 @@ public class SingleChildOperator extends GenericMuFormula {
         this.child = child;
     }
 
+    public void setChild(GenericMuFormula child) {
+        this.child = child;
+    }
+
     public GenericMuFormula getChild() {
         return this.child;
     }

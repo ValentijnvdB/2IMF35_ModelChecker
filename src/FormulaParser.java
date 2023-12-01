@@ -19,7 +19,10 @@ public class FormulaParser {
         i = 0;
         input = scanner.nextLine().toCharArray();
 
-        return parse();
+        GenericMuFormula f = parse();
+        simplify(f);
+
+        return f;
     }
 
     private static GenericMuFormula parse() throws ParseException, UnexpectedException {
@@ -245,6 +248,26 @@ public class FormulaParser {
     }
 
     //endregion
+
+    private static void simplify(GenericMuFormula f) {
+        if (f instanceof SingleChildOperator fs) {
+            GenericMuFormula cf = fs.getChild();
+            if (cf instanceof MuNeg n1 && n1.getChild() instanceof MuNeg n2) {
+                fs.setChild(n2.getChild());
+            }
+        }
+
+        // Check if instanceof is true for 'MuAnd'
+        else if (f instanceof TwoChildrenOperator fs) {
+            GenericMuFormula lcf = fs.leftChild;
+            GenericMuFormula rcf = fs.rightChild;
+            if (lcf instanceof MuNeg n1 && n1.getChild() instanceof MuNeg n2) {
+                fs.setLeftChild(n2.getChild());
+            } else if (rcf instanceof MuNeg n1 && n1.getChild() instanceof MuNeg n2) {
+                fs.setRightChild(n2.getChild());
+            }
+        }
+    }
 
     //region Helpers
 
