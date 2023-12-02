@@ -2,8 +2,16 @@ package MuFormula;
 
 public class TwoChildrenOperator extends GenericMuFormula {
 
-    public GenericMuFormula leftChild;
-    public GenericMuFormula rightChild;
+    protected GenericMuFormula leftChild;
+    protected GenericMuFormula rightChild;
+
+    public GenericMuFormula getLeftChild() {
+        return leftChild;
+    }
+
+    public GenericMuFormula getRightChild() {
+        return rightChild;
+    }
 
     public void setLeftChild(GenericMuFormula lc) {
         this.leftChild = lc;

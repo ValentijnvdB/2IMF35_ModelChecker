@@ -249,24 +249,35 @@ public class FormulaParser {
 
     //endregion
 
+    /**
+     * Simplifies formula f by removing double negations
+     */
     private static void simplify(GenericMuFormula f) {
+
         if (f instanceof SingleChildOperator fs) {
             GenericMuFormula cf = fs.getChild();
             if (cf instanceof MuNeg n1 && n1.getChild() instanceof MuNeg n2) {
                 fs.setChild(n2.getChild());
             }
+
+            simplify(fs.getChild());
         }
 
-        // Check if instanceof is true for 'MuAnd'
         else if (f instanceof TwoChildrenOperator fs) {
-            GenericMuFormula lcf = fs.leftChild;
-            GenericMuFormula rcf = fs.rightChild;
+            GenericMuFormula lcf = fs.getLeftChild();
+            GenericMuFormula rcf = fs.getRightChild();
             if (lcf instanceof MuNeg n1 && n1.getChild() instanceof MuNeg n2) {
                 fs.setLeftChild(n2.getChild());
-            } else if (rcf instanceof MuNeg n1 && n1.getChild() instanceof MuNeg n2) {
+            }
+
+            if (rcf instanceof MuNeg n1 && n1.getChild() instanceof MuNeg n2) {
                 fs.setRightChild(n2.getChild());
             }
+
+            simplify(fs.getLeftChild());
+            simplify(fs.getRightChild());
         }
+
     }
 
     //region Helpers

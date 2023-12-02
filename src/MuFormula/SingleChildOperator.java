@@ -2,7 +2,7 @@ package MuFormula;
 
 public class SingleChildOperator extends GenericMuFormula {
 
-    public GenericMuFormula child;
+    protected GenericMuFormula child;
 
     public SingleChildOperator() {
 
