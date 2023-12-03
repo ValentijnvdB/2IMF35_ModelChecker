@@ -7,25 +7,24 @@ import java.util.stream.IntStream;
 public class StateSpace {
 
     // map from transition labels to adjacency lists.
-    public final HashMap<String, int[][]> adj;
-    public final HashMap<String, int[][]> revAdj;
+    public final HashMap<String, HashSet<Integer>[]> adj;
+    public final HashMap<String, HashSet<Integer>[]> revAdj;
 
     public final int initial;
 
-    private final HashSet<Integer> S;
+    private final int nrStates;
 
-    public StateSpace(int nrStates, int initial, HashMap<String, int[][]> adj, HashMap<String, int[][]> revAdj) {
+    public StateSpace(int nrStates, int initial, HashMap<String, HashSet<Integer>[]> adj, HashMap<String, HashSet<Integer>[]> revAdj) {
 
         this.initial = initial;
         this.adj = adj;
         this.revAdj = revAdj;
-
-        S = (HashSet<Integer>) IntStream.rangeClosed(0, nrStates - 1) .boxed() .collect(Collectors.toSet());
+        this.nrStates = nrStates;
 
     }
 
     public HashSet<Integer> getS() {
-        return (HashSet<Integer>) S.clone();
+        return (HashSet<Integer>) IntStream.rangeClosed(0, nrStates - 1) .boxed() .collect(Collectors.toSet());
     }
 
 

@@ -20,23 +20,28 @@ public class ModelChecker {
 
         String FilePath = "C:\\Users\\tijnt\\OneDrive\\Documenten\\TUE\\YM2\\Q2 - 2IMF35 Algorithms for Model Checking\\A1\\testcases\\combined\\";
         String stateFileName = "test.aut";
-        String formulaFileName = "form3.mcf";
+        //String formulaFileName = "form9.mcf";
 
 
         try {
             File inputFile = new File(FilePath+stateFileName);
             Scanner input = new Scanner(inputFile);
-            StateSpaceParser.parseStates(input);
+            StateSpace states = StateSpaceParser.parseStates(input);
             input.close();
 
 
-            inputFile = new File(FilePath+formulaFileName);
-            input = new Scanner(inputFile);
-            GenericMuFormula formula = FormulaParser.parseFormula(input);
+            for (int i = 1; i < 6; i++) {
+                inputFile = new File(FilePath + "form" + i + ".mcf");
+                input = new Scanner(inputFile);
+                GenericMuFormula formula = FormulaParser.parseFormula(input);
+                input.close();
 
-            System.out.println(formula);
+                System.out.println(formula);
 
-            input.close();
+                NaiveChecker nc = new NaiveChecker(states);
+                System.out.println(nc.eval(formula));
+                System.out.println("");
+            }
 
         } catch (FileNotFoundException | ParseException | UnexpectedException e) {
             e.printStackTrace();

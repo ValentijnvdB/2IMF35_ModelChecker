@@ -1,12 +1,9 @@
 package MuFormula;
 
-public class MuLFP extends SingleChildOperator {
-
-    RecursionVariable r;
+public class MuLFP extends FixedPoint {
 
     public MuLFP(RecursionVariable r, GenericMuFormula child) {
-        this.r = r;
-        this.child = child;
+        super(r, child);
     }
 
     public String toString() {

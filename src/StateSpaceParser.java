@@ -11,8 +11,8 @@ public class StateSpaceParser {
         int nrTransitions = Integer.parseInt(parts[2]);
         int nrStates = Integer.parseInt(parts[3]);
 
-        HashMap<String, Set<Integer>[]> adj = new HashMap<>();
-        HashMap<String, Set<Integer>[]> revAdj = new HashMap<>();
+        HashMap<String, HashSet<Integer>[]> adj = new HashMap<>();
+        HashMap<String, HashSet<Integer>[]> revAdj = new HashMap<>();
 
         int src, tgt;
         String lbl;
@@ -28,13 +28,13 @@ public class StateSpaceParser {
             // check if label exists, if not initialize array and sets
             if (!adj.containsKey(lbl)) {
                 // adjacency list
-                adj.put(lbl, new Set[nrStates]);
+                adj.put(lbl, new HashSet[nrStates]);
                 for (int i = 0; i < nrStates; i++) {
                     adj.get(lbl)[i] = new HashSet<>();
                 }
 
                 // reverse adjacency list
-                revAdj.put(lbl, new Set[nrStates]);
+                revAdj.put(lbl, new HashSet[nrStates]);
                 for (int i = 0; i < nrStates; i++) {
                     revAdj.get(lbl)[i] = new HashSet<>();
                 }
@@ -48,12 +48,12 @@ public class StateSpaceParser {
         //printSets(initial, nrTransitions, nrStates, adj, revAdj);
 
         // convert sets to arrays
-        HashMap<String, int[][]> adjAsArray = toDblArray(nrStates, adj);
-        HashMap<String, int[][]> revAdjAsArray = toDblArray(nrStates, revAdj);
+//        HashMap<String, int[][]> adjAsArray = toDblArray(nrStates, adj);
+//        HashMap<String, int[][]> revAdjAsArray = toDblArray(nrStates, revAdj);
 
         //printArrays(initial, nrTransitions, nrStates, adjAsArray, revAdjAsArray);
 
-        return new StateSpace(nrStates, initial, adjAsArray, revAdjAsArray);
+        return new StateSpace(nrStates, initial, adj, revAdj);
     }
 
 

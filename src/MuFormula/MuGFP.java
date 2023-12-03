@@ -1,12 +1,10 @@
 package MuFormula;
 
-public class MuGFP extends SingleChildOperator {
+public class MuGFP extends FixedPoint {
 
-    RecursionVariable r;
 
     public MuGFP(RecursionVariable r, GenericMuFormula child) {
-        this.r = r;
-        this.child = child;
+        super(r, child);
     }
 
     public String toString() {
