@@ -3,7 +3,7 @@ import MuFormula.*;
 import java.util.HashMap;
 import java.util.HashSet;
 
-// TODO Eval of fixed points
+// TODO Check whether mu is in a nu and vice versa
 public class ELChecker {
 
     private StateSpace states;

@@ -1,12 +1,16 @@
 package MuFormula;
 
+import java.util.HashSet;
+
 public class FixedPoint extends SingleChildOperator {
 
     RecursionVariable r;
 
     public FixedPoint(RecursionVariable r, GenericMuFormula child) {
+        super(child);
         this.r = r;
-        this.child = child;
+        this.unbndVars = ((HashSet<Integer>) child.getUnbndVars().clone());
+        unbndVars.remove( getRecVarIndex() );
     }
 
     public RecursionVariable getRecVar() {
