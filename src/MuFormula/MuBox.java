@@ -9,6 +9,10 @@ public class MuBox extends SingleChildOperator {
         this.child = child;
     }
 
+    public String getAction() {
+        return action;
+    }
+
     public String toString() {
         return "[" + action + "]" + child;
     }

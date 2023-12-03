@@ -53,7 +53,7 @@ public class StateSpaceParser {
 
         //printArrays(initial, nrTransitions, nrStates, adjAsArray, revAdjAsArray);
 
-        return new StateSpace(initial, adjAsArray, revAdjAsArray);
+        return new StateSpace(nrStates, initial, adjAsArray, revAdjAsArray);
     }
 
 

@@ -7,7 +7,6 @@ import java.text.ParseException;
 import java.util.Scanner;
 
 /* TODO:
- *      Simplifier
  *      Naive checker
  *      EL Checker
  *      CMD Interface

@@ -3,6 +3,7 @@ import MuFormula.*;
 import java.rmi.UnexpectedException;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
 
@@ -13,6 +14,8 @@ public class FormulaParser {
     private static int  i;
     private static int r;
     private static char[] input;
+
+    private static final HashMap<Character, RecursionVariable> recVariables = new HashMap<>();
 
     public static GenericMuFormula parseFormula(Scanner scanner) throws ParseException, UnexpectedException {
 
@@ -71,7 +74,13 @@ public class FormulaParser {
         char n = input[i];
         i++;
         skipWhiteSpaces();
-        return new RecursionVariable(n, r++);
+        if (recVariables.containsKey(n)) {
+            return recVariables.get(n);
+        } else {
+            RecursionVariable rVar = new RecursionVariable(n, r++);
+            recVariables.put(n, rVar);
+            return rVar;
+        }
     }
 
     private static GenericMuFormula parseLogicFormula() throws ParseException, UnexpectedException {
