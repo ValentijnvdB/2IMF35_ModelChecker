@@ -96,7 +96,7 @@ public class FormulaParser {
         }
         else if (f instanceof MuLFP g) {
             vars.get("MU").add(g.getRecVar());
-            if ( lastSeen != BoundBy.MU && occursIn(vars.get("NU"), g) ) {
+            if ( (lastSeen == BoundBy.NONE) || (lastSeen == BoundBy.NU && occursIn(vars.get("NU"), g)) ) {
                 return 1 + computeDAD(g.getChild(), BoundBy.MU, vars);
             } else {
                 return computeDAD(g.getChild(), BoundBy.MU, vars);
@@ -104,7 +104,7 @@ public class FormulaParser {
         }
         else if (f instanceof MuGFP g) {
             vars.get("NU").add(g.getRecVar());
-            if (lastSeen != BoundBy.NU && occursIn(vars.get("MU"), g)) {
+            if ( (lastSeen == BoundBy.NONE) || (lastSeen == BoundBy.MU && occursIn(vars.get("MU"), g)) ) {
                 return 1 + computeDAD(g.getChild(), BoundBy.NU, vars);
             } else {
                 return computeDAD(g.getChild(), BoundBy.NU, vars);
