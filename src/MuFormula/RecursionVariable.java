@@ -4,12 +4,14 @@ public class RecursionVariable extends GenericMuFormula {
 
     private final char name;
     private final int index;
+    private BoundBy boundBy;
 
-    public RecursionVariable(char name, int index) {
+    public RecursionVariable(char name, int index, BoundBy bd) {
         super();
         this.name = name;
         this.index = index;
-        this.unbndVars.add(index);
+        this.unbndVars.add(this);
+        boundBy = bd;
     }
 
     public char getName() {
@@ -18,6 +20,10 @@ public class RecursionVariable extends GenericMuFormula {
 
     public int getIndex() {
         return this.index;
+    }
+
+    public BoundBy getBoundBy() {
+        return boundBy;
     }
 
 

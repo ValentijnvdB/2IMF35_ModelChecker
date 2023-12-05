@@ -74,19 +74,22 @@ public class ELChecker {
 
         else if (f instanceof MuGFP g) {
 
+            if (g.isBoundByOpposite()) {
+                resetA(g.getChild(), false);
+            }
             int i = g.getRecVarIndex();
-            A.put(i, states.getS());
 
             return evalFixed(i, g.getChild());
         }
 
         else if (f instanceof MuLFP g) {
 
+            if (g.isBoundByOpposite()) {
+                resetA(g.getChild(), true);
+            }
             int i = g.getRecVarIndex();
-            A.put(i, new HashSet<>());
 
             return evalFixed(i, g.getChild());
-
         }
 
         throw new RuntimeException("Something went wrong!");
@@ -101,6 +104,22 @@ public class ELChecker {
         } while (! A.get(i).equals(X) );
 
         return A.get(i);
+    }
+
+    private void resetA(GenericMuFormula f,boolean lfp) {
+
+        if (lfp && f instanceof MuLFP g && g.isOpen()) {
+            A.put(g.getRecVarIndex(), new HashSet<>());
+        } else if ((!lfp) && f instanceof MuGFP g && g.isOpen()) {
+            A.put(g.getRecVarIndex(), states.getS());
+        }
+
+        if (f instanceof SingleChildOperator g) {
+            resetA(g.getChild(), lfp);
+        } else if (f instanceof TwoChildrenOperator g) {
+            resetA(g.getLeftChild(), lfp);
+            resetA(g.getRightChild(), lfp);
+        }
     }
 
 

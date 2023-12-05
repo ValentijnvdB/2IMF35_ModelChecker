@@ -4,7 +4,7 @@ import java.util.HashSet;
 
 public abstract class GenericMuFormula {
 
-    protected HashSet<Integer> unbndVars;
+    protected HashSet<RecursionVariable> unbndVars;
 
     public GenericMuFormula() {
         unbndVars = new HashSet<>();
@@ -14,7 +14,7 @@ public abstract class GenericMuFormula {
         return unbndVars.isEmpty();
     }
 
-    protected HashSet<Integer> getUnbndVars() {
+    protected HashSet<RecursionVariable> getUnbndVars() {
         return unbndVars;
     }
 

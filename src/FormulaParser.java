@@ -46,7 +46,7 @@ public class FormulaParser {
 
         if (c == 't') return parseTrueLiteral();
         else if (c == 'f') return parseFalseLiteral();
-        else if (Character.isUpperCase(c)) return parseRecursionVariable();
+        else if (Character.isUpperCase(c)) return parseRecursionVariable(BoundBy.NONE);
         else if (c == '(') return parseLogicFormula();
         else if (c == 'm') return parseMuFormula();
         else if (c == 'n') return parseNuFormula();
@@ -70,14 +70,14 @@ public class FormulaParser {
         return new MuNeg(new TrueLiteral());
     }
 
-    private static RecursionVariable parseRecursionVariable() {
+    private static RecursionVariable parseRecursionVariable(BoundBy bd) {
         char n = input[i];
         i++;
         skipWhiteSpaces();
         if (recVariables.containsKey(n)) {
             return recVariables.get(n);
         } else {
-            RecursionVariable rVar = new RecursionVariable(n, r++);
+            RecursionVariable rVar = new RecursionVariable(n, r++, bd);
             recVariables.put(n, rVar);
             return rVar;
         }
@@ -120,6 +120,7 @@ public class FormulaParser {
             if (a instanceof MuAnd and) {
                 and.setLeftChild( new MuNeg(f) );
                 and.setRightChild( new MuNeg(g) );
+                neg.updateVars();
             } else {
                 throw new UnexpectedException("'MuAnd' object expected, instead got '" + a.getClass().toString() + "'!");
             }
@@ -163,7 +164,7 @@ public class FormulaParser {
         expect("mu");
         requiredWhiteSpace();
         if (Character.isUpperCase(input[i])) {
-            r = parseRecursionVariable();
+            r = parseRecursionVariable(BoundBy.MU);
         } else {
             throw new ParseException( notValidMessage(), i);
         }
@@ -184,7 +185,7 @@ public class FormulaParser {
         expect("nu");
         requiredWhiteSpace();
         if (Character.isUpperCase(input[i])) {
-            r = parseRecursionVariable();
+            r = parseRecursionVariable(BoundBy.NU);
         } else {
             throw new ParseException( notValidMessage(), i);
         }

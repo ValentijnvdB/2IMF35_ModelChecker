@@ -7,6 +7,10 @@ public class SingleChildOperator extends GenericMuFormula {
     public SingleChildOperator(GenericMuFormula child) {
         super();
         this.setChild(child);
+        this.updateVars();
+    }
+
+    public void updateVars() {
         this.unbndVars = child.getUnbndVars();
     }
 
