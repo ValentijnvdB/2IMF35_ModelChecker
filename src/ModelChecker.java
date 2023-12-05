@@ -38,11 +38,11 @@ public class ModelChecker {
 
                 System.out.println(formula);
 
-                //NaiveChecker nc = new NaiveChecker(states);
-                //ELChecker elc = new ELChecker(states);
-                //System.out.println(nc.eval(formula));
-                //System.out.println(elc.eval(formula));
-                //System.out.println();
+                NaiveChecker nc = new NaiveChecker(states);
+                ELChecker elc = new ELChecker(states);
+                System.out.println(nc.eval(formula));
+                System.out.println(elc.eval(formula));
+                System.out.println();
             }
 
         } catch (FileNotFoundException | ParseException | UnexpectedException e) {

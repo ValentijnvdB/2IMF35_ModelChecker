@@ -46,6 +46,8 @@ public class ELChecker {
 
         else if (f instanceof TrueLiteral) return states.getS();
 
+        else if (f instanceof FalseLiteral) return new HashSet<>();
+
         else if (f instanceof MuNeg g) {
             HashSet<Integer> st = states.getS();
             st.removeAll( evaluate(g.getChild()) );
@@ -57,6 +59,14 @@ public class ELChecker {
             HashSet<Integer> ls = evaluate( g.getLeftChild() );
             HashSet<Integer> rs = evaluate( g.getRightChild() );
             ls.retainAll( rs );
+
+            return ls;
+        }
+
+        else if (f instanceof MuOr g) {
+            HashSet<Integer> ls = evaluate( g.getLeftChild() );
+            HashSet<Integer> rs = evaluate( g.getRightChild() );
+            ls.addAll( rs );
 
             return ls;
         }
@@ -73,6 +83,17 @@ public class ELChecker {
                 ss.removeAll( revAdj[t] );
             }
             return ss;
+        }
+
+        else if (f instanceof MuDiamond g) {
+            HashSet<Integer> ts = evaluate( g.getChild() );
+            HashSet<Integer> out = new HashSet<>();
+
+            HashSet<Integer>[] revAdj = states.revAdj.get(g.getAction());
+            for (Integer t: ts) {
+                out.addAll( revAdj[t] );
+            }
+            return out;
         }
 
         else if (f instanceof MuGFP g) {

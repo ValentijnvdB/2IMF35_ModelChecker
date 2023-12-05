@@ -29,6 +29,8 @@ public class NaiveChecker {
 
         else if (f instanceof TrueLiteral) return states.getS();
 
+        else if (f instanceof FalseLiteral) return new HashSet<>();
+
         else if (f instanceof MuNeg g) {
             HashSet<Integer> st = states.getS();
             st.removeAll( evaluate(g.getChild()) );
@@ -44,18 +46,37 @@ public class NaiveChecker {
             return ls;
         }
 
+        else if (f instanceof MuOr g) {
+            HashSet<Integer> ls = evaluate( g.getLeftChild() );
+            HashSet<Integer> rs = evaluate( g.getRightChild() );
+            ls.addAll( rs );
+
+            return ls;
+        }
+
         else if (f instanceof MuBox g) {
             HashSet<Integer> ts = evaluate( g.getChild() );
-            HashSet<Integer> ss = states.getS();
+            HashSet<Integer> out = states.getS();
 
             HashSet<Integer> nts = states.getS();
             nts.removeAll( ts );
 
             HashSet<Integer>[] revAdj = states.revAdj.get(g.getAction());
             for (Integer t: nts) {
-                ss.removeAll( revAdj[t] );
+                out.removeAll( revAdj[t] );
             }
-            return ss;
+            return out;
+        }
+
+        else if (f instanceof MuDiamond g) {
+            HashSet<Integer> ts = evaluate( g.getChild() );
+            HashSet<Integer> out = new HashSet<>();
+
+            HashSet<Integer>[] revAdj = states.revAdj.get(g.getAction());
+            for (Integer t: ts) {
+                out.addAll( revAdj[t] );
+            }
+            return out;
         }
 
         else if (f instanceof MuGFP g) {
