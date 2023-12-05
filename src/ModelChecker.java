@@ -1,11 +1,7 @@
 import MuFormula.GenericMuFormula;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.rmi.UnexpectedException;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -19,7 +15,10 @@ import java.util.regex.Pattern;
 
 public class ModelChecker {
 
+    private static final String[] EL_STRINGS = new String[]{"el", "emerson-lei", "e"};
+    private static final String[] NV_STRINGS = new String[]{"n", "naive", "nv"};
 
+    private static final String[] QUIT_STRINGS = new String[]{"quit", "q"};
 
     public static void main(String[] args) {
 
@@ -30,7 +29,7 @@ public class ModelChecker {
         boolean useNaive = false;
 
         StateSpace states = null;
-        GenericMuFormula formula = null;
+        GenericMuFormula formula;
 
         NaiveChecker nvc = null;
         ELChecker elc = null;
@@ -41,23 +40,27 @@ public class ModelChecker {
                 String input = sysInScanner.nextLine();
 
 
-                List<String> list = new ArrayList<String>();
+                List<String> list = new ArrayList<>();
                 Matcher m = Pattern.compile("(\"[^\"]*\"|[^\\s]+)").matcher(input);
                 while (m.find()) {
                     list.add(m.group(1).replace("\"", ""));
                 }
 
                 if ( isCommand(list.get(0), "load") ) {
+
+                    // load state space
                     Scanner file = new Scanner(new File(list.get(1)));
                     states = StateSpaceParser.parseStates(file);
                     file.close();
+
                     nvc = new NaiveChecker(states);
                     elc = new ELChecker(states);
                     System.out.println("StateSpace loaded");
+
                 } else if ( isCommand(list.get(0), "check") ) {
 
                     if (states == null || nvc == null || elc == null) {
-                        System.out.println("Please load a state space to test.");
+                        System.out.println("Please load a state space first.");
                     } else {
                         Scanner file = new Scanner(new File(list.get(1)));
                         formula = FormulaParser.parseFormula(file);
@@ -68,15 +71,42 @@ public class ModelChecker {
                             System.out.println("States: " + elc.eval(formula));
                         }
                     }
+
+                } else if ( isCommand(list.get(0), "toggle") ) {
+
+                    useNaive = !useNaive;
+                    System.out.println("Toggled algorithm. Now using: " + (useNaive ? "Naive Algorithm." : "Emerson-Lei Algorithm."));
+
+                } else if ( isCommand(list.get(0), "use") ) {
+
+                    if (isCommand(list.get(1), EL_STRINGS)) {
+                        useNaive = false;
+                        System.out.println("Now using Emerson-Lei Algorithm.");
+
+                    } else if (isCommand(list.get(1), NV_STRINGS)) {
+                        useNaive = true;
+                        System.out.println("Now using Naive Algorithm.");
+
+                    } else {
+                        System.out.println("Please use 'el' for the Emerson-Lei Algorithm or 'nv' for Naive Algorithm");
+                    }
+
+                } else if (isCommand(list.get(0), QUIT_STRINGS)) {
+                    quit = true;
                 }
-
-
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         sysInScanner.close();
+    }
+
+    private static boolean isCommand(String input, String[] expected) {
+        for (String e: expected) {
+            if (isCommand(input, e)) return true;
+        }
+        return false;
     }
 
     private static boolean isCommand(String input, String expected) {
@@ -87,39 +117,6 @@ public class ModelChecker {
         System.out.println("How to use:");
     }
 
-
-//        String FilePath = "C:\\Users\\tijnt\\OneDrive\\Documenten\\TUE\\YM2\\Q2 - 2IMF35 Algorithms for Model Checking\\A1\\testcases\\combined\\";
-//        String stateFileName = "test.aut";
-//        //String formulaFileName = "form9.mcf";
-//
-//
-//        try {
-//            File inputFile = new File(FilePath+stateFileName);
-//            Scanner input = new Scanner(inputFile);
-//            StateSpace states = StateSpaceParser.parseStates(input);
-//            input.close();
-//
-//
-//            for (int i = 1; i <= 8; i++) {
-//                inputFile = new File(FilePath + "form" + i + ".mcf");
-//                input = new Scanner(inputFile);
-//                GenericMuFormula formula = FormulaParser.parseFormula(input);
-//                input.close();
-//
-//                //System.out.println(formula);
-//
-//                NaiveChecker nc = new NaiveChecker(states);
-//                ELChecker elc = new ELChecker(states);
-//                System.out.println(nc.eval(formula));
-//                System.out.println(elc.eval(formula));
-//                System.out.println();
-//            }
-//
-//        } catch (FileNotFoundException | ParseException | UnexpectedException e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
 
 
 }
