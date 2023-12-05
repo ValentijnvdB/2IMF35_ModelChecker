@@ -21,4 +21,8 @@ public abstract class GenericMuFormula {
     protected void removeUnbndVar(int v) {
         unbndVars.remove(v);
     }
+
+    public boolean contains(RecursionVariable r) {
+        return unbndVars.contains(r);
+    }
 }

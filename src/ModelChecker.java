@@ -36,7 +36,7 @@ public class ModelChecker {
                 GenericMuFormula formula = FormulaParser.parseFormula(input);
                 input.close();
 
-                System.out.println(formula);
+                //System.out.println(formula);
 
                 NaiveChecker nc = new NaiveChecker(states);
                 ELChecker elc = new ELChecker(states);

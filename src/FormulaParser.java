@@ -26,9 +26,104 @@ public class FormulaParser {
 
         GenericMuFormula f = parse(fid);
         f = toPNF(f);
+        printStatistics(f);
 
         return f;
     }
+
+    //region
+    private static void printStatistics(GenericMuFormula f) {
+        System.out.println(f);
+        System.out.println("Nested Depth: " + computeND(f));
+        System.out.println("Alternating Depth: " + computeAD(f, BoundBy.NONE));
+
+        HashMap<String, HashSet<RecursionVariable>> vars = new HashMap<>();
+        vars.put("MU", new HashSet<>());
+        vars.put("NU", new HashSet<>());
+        System.out.println("Alternating Depth: " + computeDAD(f, BoundBy.NONE, vars));
+    }
+
+    /**
+     * Computes the nested Depth of formula f
+     * @param f formula
+     * @return the nested deppth of f
+     */
+    private static int computeND(GenericMuFormula f) {
+        if (f instanceof MuDiamond || f instanceof MuBox) {
+            return computeND( ((SingleChildOperator) f).getChild() );
+        }
+        else if (f instanceof TwoChildrenOperator g) {
+            return Integer.max( computeND(g.getLeftChild()), computeND(g.getRightChild()) );
+        }
+        else if (f instanceof FixedPoint g) {
+            return 1 + computeND( g.getChild() );
+        } else {
+            return 0;
+        }
+    }
+
+    private static int computeAD(GenericMuFormula f, BoundBy lastSeen) {
+        if (f instanceof MuDiamond || f instanceof MuBox) {
+            return computeAD( ((SingleChildOperator) f).getChild(), lastSeen );
+        }
+        else if (f instanceof TwoChildrenOperator g) {
+            return Integer.max( computeAD(g.getLeftChild(), lastSeen), computeAD(g.getRightChild(), lastSeen) );
+        }
+        else if (f instanceof MuLFP g) {
+            if (lastSeen != BoundBy.MU) {
+                return 1 + computeAD(g.getChild(), BoundBy.MU);
+            } else {
+                return computeAD(g.getChild(), BoundBy.MU);
+            }
+        }
+        else if (f instanceof MuGFP g) {
+            if (lastSeen != BoundBy.NU) {
+                return 1 + computeAD(g.getChild(), BoundBy.NU);
+            } else {
+                return computeAD(g.getChild(), BoundBy.NU);
+            }
+        } else {
+            return 0;
+        }
+    }
+
+    private static int computeDAD(GenericMuFormula f, BoundBy lastSeen, HashMap<String, HashSet<RecursionVariable>> vars) {
+        if (f instanceof MuDiamond || f instanceof MuBox) {
+            return computeDAD( ((SingleChildOperator) f).getChild(), lastSeen, vars );
+        }
+        else if (f instanceof TwoChildrenOperator g) {
+            return Integer.max( computeDAD(g.getLeftChild(), lastSeen, vars), computeDAD(g.getRightChild(), lastSeen, vars) );
+        }
+        else if (f instanceof MuLFP g) {
+            vars.get("MU").add(g.getRecVar());
+            if ( lastSeen != BoundBy.MU && occursIn(vars.get("NU"), g) ) {
+                return 1 + computeDAD(g.getChild(), BoundBy.MU, vars);
+            } else {
+                return computeDAD(g.getChild(), BoundBy.MU, vars);
+            }
+        }
+        else if (f instanceof MuGFP g) {
+            vars.get("NU").add(g.getRecVar());
+            if (lastSeen != BoundBy.NU && occursIn(vars.get("MU"), g)) {
+                return 1 + computeDAD(g.getChild(), BoundBy.NU, vars);
+            } else {
+                return computeDAD(g.getChild(), BoundBy.NU, vars);
+            }
+        } else {
+            return 0;
+        }
+    }
+
+    private static boolean occursIn(HashSet<RecursionVariable> vars, FixedPoint f) {
+
+        for (RecursionVariable r: vars) {
+            if (f.contains(r)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     private static GenericMuFormula parse(int fid) throws ParseException, UnexpectedException {
 
