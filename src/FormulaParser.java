@@ -40,7 +40,7 @@ public class FormulaParser {
         HashMap<String, HashSet<RecursionVariable>> vars = new HashMap<>();
         vars.put("MU", new HashSet<>());
         vars.put("NU", new HashSet<>());
-        System.out.println("Alternating Depth: " + computeDAD(f, BoundBy.NONE, vars));
+        System.out.println("Dependent Alternating Depth: " + computeDAD(f, BoundBy.NONE, vars));
     }
 
     /**

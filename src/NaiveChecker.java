@@ -23,7 +23,7 @@ public class NaiveChecker {
         return out;
     }
 
-    public HashSet<Integer> evaluate(GenericMuFormula f) {
+    private HashSet<Integer> evaluate(GenericMuFormula f) {
 
         if (f instanceof RecursionVariable g) return A.get( g.getIndex() );
 
