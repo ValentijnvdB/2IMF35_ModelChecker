@@ -30,7 +30,7 @@ public class ModelChecker {
             input.close();
 
 
-            for (int i = 1; i <= 6; i++) {
+            for (int i = 1; i <= 8; i++) {
                 inputFile = new File(FilePath + "form" + i + ".mcf");
                 input = new Scanner(inputFile);
                 GenericMuFormula formula = FormulaParser.parseFormula(input);
@@ -38,11 +38,11 @@ public class ModelChecker {
 
                 System.out.println(formula);
 
-                NaiveChecker nc = new NaiveChecker(states);
-                ELChecker elc = new ELChecker(states);
-                System.out.println(nc.eval(formula));
-                System.out.println(elc.eval(formula));
-                System.out.println();
+                //NaiveChecker nc = new NaiveChecker(states);
+                //ELChecker elc = new ELChecker(states);
+                //System.out.println(nc.eval(formula));
+                //System.out.println(elc.eval(formula));
+                //System.out.println();
             }
 
         } catch (FileNotFoundException | ParseException | UnexpectedException e) {

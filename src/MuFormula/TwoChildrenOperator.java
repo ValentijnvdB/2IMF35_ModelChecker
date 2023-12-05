@@ -11,6 +11,11 @@ public class TwoChildrenOperator extends GenericMuFormula {
         super();
     }
 
+    public TwoChildrenOperator(GenericMuFormula lc, GenericMuFormula rc) {
+        this.setLeftChild(lc);
+        this.setRightChild(rc);
+    }
+
     public GenericMuFormula getLeftChild() {
         return leftChild;
     }

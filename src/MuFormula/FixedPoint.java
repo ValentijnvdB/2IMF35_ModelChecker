@@ -26,6 +26,10 @@ public class FixedPoint extends SingleChildOperator {
         return r;
     }
 
+    public int getLevel() {
+        return level;
+    }
+
     public int getRecVarIndex() {
         return r.getIndex();
     }

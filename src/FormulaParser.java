@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 public class FormulaParser {
 
-    private final static HashSet<Character> formulaFirstSet = new HashSet<>(Arrays.asList('t', 'f', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '(', 'm', 'n', '<', '['));
+    private final static HashSet<Character> formulaFirstSet = new HashSet<>(Arrays.asList('t', 'f', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '(', 'm', 'n', '<', '[', '!'));
 
     private static int  i;
     private static int rid;
@@ -25,7 +25,7 @@ public class FormulaParser {
         input = scanner.nextLine().toCharArray();
 
         GenericMuFormula f = parse(fid);
-        simplify(f);
+        f = toPNF(f);
 
         return f;
     }
@@ -54,6 +54,7 @@ public class FormulaParser {
         else if (c == 'n') return parseNuFormula(fid);
         else if (c == '[') return parseBoxFormula(fid);
         else if (c == '<') return parseDiamondFormula(fid);
+        else if (c == '!') return parseNegation(fid);
 
         throw new ParseException( notValidMessage(), i );
     }
@@ -66,10 +67,16 @@ public class FormulaParser {
         return new TrueLiteral();
     }
 
-    private static MuNeg parseFalseLiteral() throws ParseException {
+    private static FalseLiteral parseFalseLiteral() throws ParseException {
         expect("false");
         skipWhiteSpaces();
-        return new MuNeg(new TrueLiteral());
+        return new FalseLiteral();
+    }
+
+    private static MuNeg parseNegation(int fid) throws ParseException, UnexpectedException {
+        expect('!');
+        skipWhiteSpaces();
+        return new MuNeg(parseFormula(fid));
     }
 
     private static RecursionVariable parseRecursionVariable(BoundBy bd, int fid) {
@@ -85,7 +92,7 @@ public class FormulaParser {
         }
     }
 
-    private static GenericMuFormula parseLogicFormula(int fid) throws ParseException, UnexpectedException {
+    private static TwoChildrenOperator parseLogicFormula(int fid) throws ParseException, UnexpectedException {
         expect('(');
         skipWhiteSpaces();
 
@@ -98,7 +105,7 @@ public class FormulaParser {
         }
 
         // parse operator
-        GenericMuFormula o;
+        TwoChildrenOperator o;
         if (input[i] == '&' || input[i] == '|') {
             o = parseOperator();
         } else {
@@ -117,29 +124,14 @@ public class FormulaParser {
         skipWhiteSpaces();
 
         // set children
-        if (o instanceof MuNeg neg) {
-            GenericMuFormula a = neg.getChild();
-            if (a instanceof MuAnd and) {
-                and.setLeftChild( new MuNeg(f) );
-                and.setRightChild( new MuNeg(g) );
-                neg.updateVars();
-            } else {
-                throw new UnexpectedException("'MuAnd' object expected, instead got '" + a.getClass().toString() + "'!");
-            }
-
-        } else if (o instanceof MuAnd and)  {
-            and.setLeftChild(f);
-            and.setRightChild(g);
-
-        } else {
-            throw new UnexpectedException("'MuAnd' or 'MuNeg' object expected, instead got '" + o.getClass().toString() + "'!");
-        }
+        o.setLeftChild(f);
+        o.setRightChild(g);
 
         return o;
     }
 
 
-    private static GenericMuFormula parseOperator() throws ParseException {
+    private static TwoChildrenOperator parseOperator() throws ParseException {
         char c = input[i];
 
         if (c == '&') return parseLogicAndOperator();
@@ -153,10 +145,10 @@ public class FormulaParser {
         return new MuAnd();
     }
 
-    private static MuNeg parseLogicOrOperator() throws ParseException {
+    private static MuOr parseLogicOrOperator() throws ParseException {
         expect("||");
         skipWhiteSpaces();
-        return new MuNeg(new MuAnd());
+        return new MuOr();
     }
 
     private static MuLFP parseMuFormula(int fid) throws ParseException, UnexpectedException {
@@ -202,7 +194,7 @@ public class FormulaParser {
     }
 
 
-    private static MuNeg parseDiamondFormula(int fid) throws ParseException, UnexpectedException {
+    private static MuDiamond parseDiamondFormula(int fid) throws ParseException, UnexpectedException {
         expect('<');
         skipWhiteSpaces();
 
@@ -223,7 +215,7 @@ public class FormulaParser {
         } else {
             throw new ParseException( notValidMessage(), i);
         }
-        return new MuNeg(new MuBox(a, new MuNeg(f)));
+        return new MuDiamond(a, f);
     }
 
     private static MuBox parseBoxFormula(int fid) throws ParseException, UnexpectedException {
@@ -290,6 +282,99 @@ public class FormulaParser {
             simplify(fs.getRightChild());
         }
 
+    }
+
+    private static GenericMuFormula toPNF(GenericMuFormula f) {
+
+        if (f instanceof TwoChildrenOperator parent) {
+
+            GenericMuFormula leftChild = parent.getLeftChild();
+            GenericMuFormula rightChild = parent.getRightChild();
+
+            if (leftChild instanceof MuNeg neg) {
+                parent.setLeftChild( invert(neg.getChild()) );
+            } else {
+                parent.setLeftChild( toPNF(leftChild) );
+            }
+
+            if (rightChild instanceof MuNeg neg) {
+                parent.setRightChild( invert(neg.getChild()) );
+            } else {
+                parent.setRightChild( toPNF(rightChild) );
+            }
+
+        } else if (f instanceof MuNeg parent) {
+
+            return invert( parent.getChild() );
+
+        } else if (f instanceof SingleChildOperator parent) {
+
+            GenericMuFormula child = parent.getChild();
+
+            if (child instanceof MuNeg neg) {
+                parent.setChild( invert(neg.getChild()) );
+            } else {
+                parent.setChild( toPNF(child) );
+            }
+
+        }
+
+        return f;
+
+    }
+
+    private static GenericMuFormula invert(GenericMuFormula f) {
+        if (f instanceof MuNeg g) {
+            return g.getChild();
+        }
+        else if (f instanceof TrueLiteral) {
+            return new FalseLiteral();
+        }
+        else if (f instanceof FalseLiteral) {
+            return new TrueLiteral();
+        }
+        else if (f instanceof MuAnd g) {
+            return new MuOr( invert(g.getLeftChild()), invert(g.getRightChild()) );
+        }
+        else if (f instanceof MuOr g) {
+            return new MuAnd( invert(g.getLeftChild()), invert(g.getRightChild()) );
+        }
+        else if (f instanceof MuBox g) {
+            return new MuDiamond( g.getAction(), invert(g.getChild()) );
+        }
+        else if (f instanceof MuDiamond g) {
+            return new MuBox( g.getAction(), invert(g.getChild()) );
+        }
+        else if (f instanceof MuLFP g) {
+            negateVar(g, g.getRecVar());
+            return new MuGFP( g.getRecVar(), invert(g.getChild()), g.getLevel() );
+        }
+        else if (f instanceof MuGFP g) {
+            negateVar(g, g.getRecVar());
+            return new MuLFP( g.getRecVar(), invert(g.getChild()), g.getLevel() );
+        } else {
+            return new MuNeg(f);
+        }
+    }
+
+    private static void negateVar(GenericMuFormula f, RecursionVariable X) {
+        if (f instanceof SingleChildOperator g) {
+            if (g.getChild() == X) {
+                g.setChild(new MuNeg(X));
+            } else {
+                negateVar(g.getChild(), X);
+            }
+        }
+        else if (f instanceof TwoChildrenOperator g) {
+            if (g.getLeftChild() == X) {
+                g.setLeftChild(new MuNeg(X));
+            } else if (g.getRightChild() == X) {
+                g.setRightChild(new MuNeg(X));
+            } else {
+                negateVar(g.getLeftChild(), X);
+                negateVar(g.getRightChild(), X);
+            }
+        }
     }
 
     //region Helpers
