@@ -12,7 +12,7 @@ public class FormulaParser {
     private final static HashSet<Character> formulaFirstSet = new HashSet<>(Arrays.asList('t', 'f', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '(', 'm', 'n', '<', '['));
 
     private static int  i;
-    private static int r;
+    private static int rid;
     private static char[] input;
 
     private static final HashMap<Character, RecursionVariable> recVariables = new HashMap<>();
@@ -20,38 +20,40 @@ public class FormulaParser {
     public static GenericMuFormula parseFormula(Scanner scanner) throws ParseException, UnexpectedException {
 
         i = 0;
+        rid = 0;
+        int fid = 0;
         input = scanner.nextLine().toCharArray();
 
-        GenericMuFormula f = parse();
+        GenericMuFormula f = parse(fid);
         simplify(f);
 
         return f;
     }
 
-    private static GenericMuFormula parse() throws ParseException, UnexpectedException {
+    private static GenericMuFormula parse(int fid) throws ParseException, UnexpectedException {
 
         skipWhiteSpaces();
 
         if (formulaFirstSet.contains(input[i])) {
 
-            return parseFormula();
+            return parseFormula(fid);
 
         } else {
             throw new ParseException( notValidMessage() , i);
         }
     }
 
-    private static GenericMuFormula parseFormula() throws ParseException, UnexpectedException {
+    private static GenericMuFormula parseFormula(int fid) throws ParseException, UnexpectedException {
         char c = input[i];
 
         if (c == 't') return parseTrueLiteral();
         else if (c == 'f') return parseFalseLiteral();
-        else if (Character.isUpperCase(c)) return parseRecursionVariable(BoundBy.NONE);
-        else if (c == '(') return parseLogicFormula();
-        else if (c == 'm') return parseMuFormula();
-        else if (c == 'n') return parseNuFormula();
-        else if (c == '[') return parseBoxFormula();
-        else if (c == '<') return parseDiamondFormula();
+        else if (Character.isUpperCase(c)) return parseRecursionVariable(BoundBy.NONE, Integer.MIN_VALUE);
+        else if (c == '(') return parseLogicFormula(fid);
+        else if (c == 'm') return parseMuFormula(fid);
+        else if (c == 'n') return parseNuFormula(fid);
+        else if (c == '[') return parseBoxFormula(fid);
+        else if (c == '<') return parseDiamondFormula(fid);
 
         throw new ParseException( notValidMessage(), i );
     }
@@ -70,27 +72,27 @@ public class FormulaParser {
         return new MuNeg(new TrueLiteral());
     }
 
-    private static RecursionVariable parseRecursionVariable(BoundBy bd) {
+    private static RecursionVariable parseRecursionVariable(BoundBy bd, int fid) {
         char n = input[i];
         i++;
         skipWhiteSpaces();
         if (recVariables.containsKey(n)) {
             return recVariables.get(n);
         } else {
-            RecursionVariable rVar = new RecursionVariable(n, r++, bd);
+            RecursionVariable rVar = new RecursionVariable(n, rid++, bd, fid);
             recVariables.put(n, rVar);
             return rVar;
         }
     }
 
-    private static GenericMuFormula parseLogicFormula() throws ParseException, UnexpectedException {
+    private static GenericMuFormula parseLogicFormula(int fid) throws ParseException, UnexpectedException {
         expect('(');
         skipWhiteSpaces();
 
         // parse left formula
         GenericMuFormula f;
         if (formulaFirstSet.contains(input[i])) {
-            f = parseFormula();
+            f = parseFormula(fid);
         } else {
             throw new ParseException( notValidMessage() , i);
         }
@@ -106,7 +108,7 @@ public class FormulaParser {
         // parse right formula
         GenericMuFormula g;
         if (formulaFirstSet.contains(input[i])) {
-            g = parseFormula();
+            g = parseFormula(fid);
         } else {
             throw new ParseException( notValidMessage() , i);
         }
@@ -157,50 +159,50 @@ public class FormulaParser {
         return new MuNeg(new MuAnd());
     }
 
-    private static MuLFP parseMuFormula() throws ParseException, UnexpectedException {
+    private static MuLFP parseMuFormula(int fid) throws ParseException, UnexpectedException {
         RecursionVariable r;
         GenericMuFormula f;
 
         expect("mu");
         requiredWhiteSpace();
         if (Character.isUpperCase(input[i])) {
-            r = parseRecursionVariable(BoundBy.MU);
+            r = parseRecursionVariable(BoundBy.MU, fid);
         } else {
             throw new ParseException( notValidMessage(), i);
         }
         expect('.');
         skipWhiteSpaces();
         if (formulaFirstSet.contains(input[i])) {
-            f = parseFormula();
+            f = parseFormula(fid+1);
         } else {
             throw new ParseException( notValidMessage(), i);
         }
-        return new MuLFP(r, f);
+        return new MuLFP(r, f, fid);
     }
 
-    private static MuGFP parseNuFormula() throws ParseException, UnexpectedException {
+    private static MuGFP parseNuFormula(int fid) throws ParseException, UnexpectedException {
         RecursionVariable r;
         GenericMuFormula f;
 
         expect("nu");
         requiredWhiteSpace();
         if (Character.isUpperCase(input[i])) {
-            r = parseRecursionVariable(BoundBy.NU);
+            r = parseRecursionVariable(BoundBy.NU, fid);
         } else {
             throw new ParseException( notValidMessage(), i);
         }
         expect('.');
         skipWhiteSpaces();
         if (formulaFirstSet.contains(input[i])) {
-            f = parseFormula();
+            f = parseFormula(fid+1);
         } else {
             throw new ParseException( notValidMessage(), i);
         }
-        return new MuGFP(r, f);
+        return new MuGFP(r, f, fid);
     }
 
 
-    private static MuNeg parseDiamondFormula() throws ParseException, UnexpectedException {
+    private static MuNeg parseDiamondFormula(int fid) throws ParseException, UnexpectedException {
         expect('<');
         skipWhiteSpaces();
 
@@ -217,14 +219,14 @@ public class FormulaParser {
         // parse sub formula
         GenericMuFormula f;
         if (formulaFirstSet.contains(input[i])) {
-            f = parseFormula();
+            f = parseFormula(fid);
         } else {
             throw new ParseException( notValidMessage(), i);
         }
         return new MuNeg(new MuBox(a, new MuNeg(f)));
     }
 
-    private static MuBox parseBoxFormula() throws ParseException, UnexpectedException {
+    private static MuBox parseBoxFormula(int fid) throws ParseException, UnexpectedException {
         expect('[');
         skipWhiteSpaces();
 
@@ -241,7 +243,7 @@ public class FormulaParser {
         // parse sub formula
         GenericMuFormula f;
         if (formulaFirstSet.contains(input[i])) {
-            f = parseFormula();
+            f = parseFormula(fid);
         } else {
             throw new ParseException( notValidMessage(), i);
         }

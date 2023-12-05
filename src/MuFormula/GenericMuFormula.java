@@ -11,7 +11,7 @@ public abstract class GenericMuFormula {
     }
 
     public boolean isOpen() {
-        return unbndVars.isEmpty();
+        return !unbndVars.isEmpty();
     }
 
     protected HashSet<RecursionVariable> getUnbndVars() {

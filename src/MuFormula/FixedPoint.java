@@ -8,11 +8,14 @@ public class FixedPoint extends SingleChildOperator {
 
     protected boolean boundByOpposite;
 
-    public FixedPoint(RecursionVariable r, GenericMuFormula child) {
+    protected int level;
+
+    public FixedPoint(RecursionVariable r, GenericMuFormula child, int lvl) {
         super(child);
         this.r = r;
         this.unbndVars = ((HashSet<RecursionVariable>) child.getUnbndVars().clone());
         unbndVars.remove( r );
+        level = lvl;
     }
 
     public boolean isBoundByOpposite() {

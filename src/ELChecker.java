@@ -3,10 +3,10 @@ import MuFormula.*;
 import java.util.HashMap;
 import java.util.HashSet;
 
-// TODO Check whether mu is in a nu and vice versa
 public class ELChecker {
 
     private StateSpace states;
+    private int iterations;
 
     // RecVar -> Set of states
     private HashMap<Integer, HashSet<Integer>> A;
@@ -18,7 +18,10 @@ public class ELChecker {
 
     public HashSet<Integer> eval(GenericMuFormula f) {
         init(f);
-        return evaluate(f);
+        iterations = 0;
+        HashSet<Integer> out = evaluate(f);
+        System.out.println(iterations);
+        return out;
     }
 
     private void init(GenericMuFormula f) {
@@ -75,7 +78,7 @@ public class ELChecker {
         else if (f instanceof MuGFP g) {
 
             if (g.isBoundByOpposite()) {
-                resetA(g.getChild(), false);
+                resetA(g, false);
             }
             int i = g.getRecVarIndex();
 
@@ -85,7 +88,7 @@ public class ELChecker {
         else if (f instanceof MuLFP g) {
 
             if (g.isBoundByOpposite()) {
-                resetA(g.getChild(), true);
+                resetA(g, true);
             }
             int i = g.getRecVarIndex();
 
@@ -101,12 +104,13 @@ public class ELChecker {
         do {
             X = A.get(i);
             A.put(i, evaluate(subFormula) );
+            iterations++;
         } while (! A.get(i).equals(X) );
 
         return A.get(i);
     }
 
-    private void resetA(GenericMuFormula f,boolean lfp) {
+    private void resetA(GenericMuFormula f, boolean lfp) {
 
         if (lfp && f instanceof MuLFP g && g.isOpen()) {
             A.put(g.getRecVarIndex(), new HashSet<>());

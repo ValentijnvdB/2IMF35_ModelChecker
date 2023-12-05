@@ -2,11 +2,11 @@ import MuFormula.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 public class NaiveChecker {
 
     private StateSpace states;
+    private int iterations;
 
     // RecVar -> Set of states
     private HashMap<Integer, HashSet<Integer>> A;
@@ -17,6 +17,13 @@ public class NaiveChecker {
     }
 
     public HashSet<Integer> eval(GenericMuFormula f) {
+        iterations = 0;
+        HashSet<Integer> out = evaluate(f);
+        System.out.println(iterations);
+        return out;
+    }
+
+    public HashSet<Integer> evaluate(GenericMuFormula f) {
 
         if (f instanceof RecursionVariable g) return A.get( g.getIndex() );
 
@@ -24,21 +31,21 @@ public class NaiveChecker {
 
         else if (f instanceof MuNeg g) {
             HashSet<Integer> st = states.getS();
-            st.removeAll( eval(g.getChild()) );
+            st.removeAll( evaluate(g.getChild()) );
 
             return st;
         }
 
         else if (f instanceof MuAnd g) {
-            HashSet<Integer> ls = eval( g.getLeftChild() );
-            HashSet<Integer> rs = eval( g.getRightChild() );
+            HashSet<Integer> ls = evaluate( g.getLeftChild() );
+            HashSet<Integer> rs = evaluate( g.getRightChild() );
             ls.retainAll( rs );
 
             return ls;
         }
 
         else if (f instanceof MuBox g) {
-            HashSet<Integer> ts = eval( g.getChild() );
+            HashSet<Integer> ts = evaluate( g.getChild() );
             HashSet<Integer> ss = states.getS();
 
             HashSet<Integer> nts = states.getS();
@@ -76,7 +83,8 @@ public class NaiveChecker {
 
         do {
             X = A.get(i);
-            A.put(i, eval(subFormula) );
+            A.put(i, evaluate(subFormula) );
+            iterations++;
         } while (! A.get(i).equals(X) );
 
         return A.get(i);

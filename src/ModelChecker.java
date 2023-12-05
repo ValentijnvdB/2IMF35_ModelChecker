@@ -18,7 +18,7 @@ public class ModelChecker {
 
     public static void main(String[] args) {
 
-        String FilePath = "C:\\Users\\tijnt\\OneDrive\\Documenten\\TUE\\YM2\\Q2 - 2IMF35 Algorithms for Model Checking\\A1\\testcases\\boolean\\";
+        String FilePath = "C:\\Users\\tijnt\\OneDrive\\Documenten\\TUE\\YM2\\Q2 - 2IMF35 Algorithms for Model Checking\\A1\\testcases\\combined\\";
         String stateFileName = "test.aut";
         //String formulaFileName = "form9.mcf";
 
@@ -30,7 +30,7 @@ public class ModelChecker {
             input.close();
 
 
-            for (int i = 1; i <= 9; i++) {
+            for (int i = 1; i <= 6; i++) {
                 inputFile = new File(FilePath + "form" + i + ".mcf");
                 input = new Scanner(inputFile);
                 GenericMuFormula formula = FormulaParser.parseFormula(input);
@@ -40,6 +40,7 @@ public class ModelChecker {
 
                 NaiveChecker nc = new NaiveChecker(states);
                 ELChecker elc = new ELChecker(states);
+                System.out.println(nc.eval(formula));
                 System.out.println(elc.eval(formula));
                 System.out.println();
             }
