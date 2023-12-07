@@ -9,7 +9,7 @@ public class ELChecker {
     private int iterations;
 
     // RecVar -> Set of states
-    private HashMap<Integer, HashSet<Integer>> final A;
+    private final HashMap<Integer, HashSet<Integer>> A;
 
     public ELChecker(StateSpace states) {
         this.states = states;
