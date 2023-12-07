@@ -23,7 +23,7 @@ public class ModelChecker {
 
     private static final String[] QUIT_STRINGS = new String[]{"quit", "q", "exit"};
 
-    private static final String[] BASE_STRINGS = new String[]{"path", "base"};
+    private static final String[] BASE_STRINGS = new String[]{"cd", "path", "base"};
 
     private static final String[] HELP_STRINGS = new String[]{"help", "h"};
 
@@ -46,11 +46,12 @@ public class ModelChecker {
         NaiveChecker nvc = null;
         ELChecker elc = null;
 
-        Path basePath = Paths.get("");
+        Path basePath = Paths.get(System.getProperty("user.dir"));
 
         while(!quit) {
 
             try {
+                System.out.print(basePath + " > ");
                 String input = sysInScanner.nextLine();
 
 
@@ -79,6 +80,7 @@ public class ModelChecker {
                         Scanner file = new Scanner(new File(list.get(1)));
                         formula = FormulaParser.parseFormula(file);
                         file.close();
+
                         if (useNaive) {
                             System.out.println("States: " + nvc.eval(formula));
                         } else {
@@ -106,18 +108,33 @@ public class ModelChecker {
                     }
 
                 } else if (isCommand(list.get(0), BASE_STRINGS)) {
-                    Path path = Paths.get(list.get(1));
 
-                    if (!Files.exists(path)) System.out.println("Directory does not exist!");
-                    else {
-                        basePath = path;
-                        System.out.println("Now using base directory: '" + basePath + "'.");
+                    if (list.get(1).equals("..")) {
+                        basePath = basePath.getParent();
+                    } else {
+
+                        Path path = Paths.get(list.get(1));
+
+                        if (Files.exists(path)) {
+                            basePath = path;
+                            System.out.println("Now using base directory: '" + basePath + "'.");
+                        } else if (Files.exists(basePath.resolve(path))) {
+                            basePath = basePath.resolve(path);
+                            System.out.println("Now using base directory: '" + basePath + "'.");
+                        } else {
+                            System.out.println("Directory does not exist!");
+                        }
                     }
+
 
                 } else if (isCommand(list.get(0), HELP_STRINGS)) {
                     printHelp();
                 } else if (isCommand(list.get(0), QUIT_STRINGS)) {
                     quit = true;
+                }
+
+                else {
+                    System.out.println("Command does not exist! Use 'help' for a list of commands.");
                 }
 
             } catch (Exception e) {
@@ -144,7 +161,7 @@ public class ModelChecker {
         System.out.println("Start by loading a state space using the 'load' command. Then check mu formulas on that state space using the 'eval' command.");
         System.out.println();
         System.out.println("Command:    Parameter:     Description:");
-        System.out.println("base        dir            Set base directory (alias path).");
+        System.out.println("cd          dir            Set base directory (alias base, path).");
         System.out.println("                           After setting all files/paths are relative the the base directory.");
         System.out.println("load        file           Load a state space from file.");
         System.out.println("eval        file           Loads a mu formula from file, then evaluates it for the loaded state space.");

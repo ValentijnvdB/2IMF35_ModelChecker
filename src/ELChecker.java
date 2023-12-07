@@ -5,11 +5,11 @@ import java.util.HashSet;
 
 public class ELChecker {
 
-    private StateSpace states;
+    private final StateSpace states;
     private int iterations;
 
     // RecVar -> Set of states
-    private HashMap<Integer, HashSet<Integer>> A;
+    private HashMap<Integer, HashSet<Integer>> final A;
 
     public ELChecker(StateSpace states) {
         this.states = states;
@@ -20,7 +20,7 @@ public class ELChecker {
         init(f);
         iterations = 0;
         HashSet<Integer> out = evaluate(f);
-        System.out.println(iterations);
+        System.out.println("Number of fixed point iterations: " + iterations);
         return out;
     }
 
