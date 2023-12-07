@@ -79,8 +79,10 @@ public class ELChecker {
             nts.removeAll( ts );
 
             HashSet<Integer>[] revAdj = states.revAdj.get(g.getAction());
-            for (Integer t: nts) {
-                ss.removeAll( revAdj[t] );
+            if (revAdj != null) {
+                for (Integer t : nts) {
+                    ss.removeAll(revAdj[t]);
+                }
             }
             return ss;
         }
@@ -90,8 +92,10 @@ public class ELChecker {
             HashSet<Integer> out = new HashSet<>();
 
             HashSet<Integer>[] revAdj = states.revAdj.get(g.getAction());
-            for (Integer t: ts) {
-                out.addAll( revAdj[t] );
+            if (revAdj != null) {
+                for (Integer t : ts) {
+                    out.addAll(revAdj[t]);
+                }
             }
             return out;
         }

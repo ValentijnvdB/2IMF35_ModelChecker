@@ -33,7 +33,9 @@ public class FormulaParser {
 
     //region
     private static void printStatistics(GenericMuFormula f) {
-        System.out.println(f);
+        System.out.println();
+        System.out.println("Formula: " + f);
+        System.out.println();
         System.out.println("Nested Depth: " + computeND(f));
         System.out.println("Alternating Depth: " + computeAD(f, BoundBy.NONE));
 
@@ -41,6 +43,7 @@ public class FormulaParser {
         vars.put("MU", new HashSet<>());
         vars.put("NU", new HashSet<>());
         System.out.println("Dependent Alternating Depth: " + computeDAD(f, BoundBy.NONE, vars));
+        System.out.println();
     }
 
     /**

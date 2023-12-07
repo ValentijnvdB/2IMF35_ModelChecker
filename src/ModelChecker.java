@@ -2,6 +2,7 @@ import MuFormula.GenericMuFormula;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -77,14 +78,16 @@ public class ModelChecker {
                     if (states == null || nvc == null || elc == null) {
                         System.out.println("Please load a state space first.");
                     } else {
-                        Scanner file = new Scanner(new File(list.get(1)));
+                        Scanner file = new Scanner(basePath.resolve(Paths.get(list.get(1))));
                         formula = FormulaParser.parseFormula(file);
                         file.close();
 
                         if (useNaive) {
-                            System.out.println("States: " + nvc.eval(formula));
+                            System.out.println("Using Naive Algorithm.");
+                            System.out.println("States that satisfy formula: " + nvc.eval(formula));
                         } else {
-                            System.out.println("States: " + elc.eval(formula));
+                            System.out.println("Using Emerson-Lei Algorithm.");
+                            System.out.println("States that satisfy formula: " + elc.eval(formula));
                         }
                     }
 
@@ -117,10 +120,8 @@ public class ModelChecker {
 
                         if (Files.exists(path)) {
                             basePath = path;
-                            System.out.println("Now using base directory: '" + basePath + "'.");
                         } else if (Files.exists(basePath.resolve(path))) {
                             basePath = basePath.resolve(path);
-                            System.out.println("Now using base directory: '" + basePath + "'.");
                         } else {
                             System.out.println("Directory does not exist!");
                         }
@@ -131,12 +132,12 @@ public class ModelChecker {
                     printHelp();
                 } else if (isCommand(list.get(0), QUIT_STRINGS)) {
                     quit = true;
-                }
-
-                else {
+                } else {
                     System.out.println("Command does not exist! Use 'help' for a list of commands.");
                 }
 
+            }  catch (NoSuchFileException e) {
+                System.out.println("Could not find file!");
             } catch (Exception e) {
                 e.printStackTrace();
             }
