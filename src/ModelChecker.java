@@ -47,6 +47,10 @@ public class ModelChecker {
         NaiveChecker nvc = null;
         ELChecker elc = null;
 
+        long startTime = System.nanoTime();
+        long endTime = System.nanoTime();
+        double runtime;
+
         Path basePath = Paths.get(System.getProperty("user.dir"));
 
         while(!quit) {
@@ -84,10 +88,19 @@ public class ModelChecker {
 
                         if (useNaive) {
                             System.out.println("Using Naive Algorithm.");
+                            startTime = System.nanoTime();
                             System.out.println("States that satisfy formula: " + nvc.eval(formula));
+                            endTime = System.nanoTime();
+                            runtime = (endTime - startTime) / 1000000.0;
+                            System.out.println("Evaluation time: " + runtime);
+
                         } else {
                             System.out.println("Using Emerson-Lei Algorithm.");
+                            startTime = System.nanoTime();
                             System.out.println("States that satisfy formula: " + elc.eval(formula));
+                            endTime = System.nanoTime();
+                            runtime = (endTime - startTime) / 1000000.0;
+                            System.out.println("Evaluation time: " + runtime);
                         }
                     }
 
