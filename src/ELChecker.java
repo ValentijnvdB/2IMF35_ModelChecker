@@ -3,10 +3,9 @@ import MuFormula.*;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class ELChecker {
+public class ELChecker extends Checker {
 
     private final StateSpace states;
-    private int iterations;
 
     // RecVar -> Set of states
     private final HashMap<Integer, HashSet<Integer>> A;
@@ -20,7 +19,6 @@ public class ELChecker {
         init(f);
         iterations = 0;
         HashSet<Integer> out = evaluate(f);
-        System.out.println("Number of fixed point iterations: " + iterations);
         return out;
     }
 

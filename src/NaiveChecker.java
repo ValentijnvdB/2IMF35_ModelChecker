@@ -3,10 +3,9 @@ import MuFormula.*;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class NaiveChecker {
+public class NaiveChecker extends Checker {
 
     private StateSpace states;
-    private int iterations;
 
     // RecVar -> Set of states
     private HashMap<Integer, HashSet<Integer>> A;
@@ -19,7 +18,6 @@ public class NaiveChecker {
     public HashSet<Integer> eval(GenericMuFormula f) {
         iterations = 0;
         HashSet<Integer> out = evaluate(f);
-        System.out.println("Number of fixed point iterations: " + iterations);
         return out;
     }
 
