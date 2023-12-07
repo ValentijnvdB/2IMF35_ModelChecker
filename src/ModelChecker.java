@@ -66,6 +66,8 @@ public class ModelChecker {
                     list.add(m.group(1).replace("\"", ""));
                 }
 
+                if (list.isEmpty()) continue;
+
                 if (isCommand(list.get(0), "load")) {
 
                     // load state space

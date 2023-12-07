@@ -55,7 +55,7 @@ public class FormulaParser {
     /**
      * Computes the nested Depth of formula f
      * @param f formula
-     * @return the nested deppth of f
+     * @return the nested depth of f
      */
     private static int computeND(GenericMuFormula f) {
         if (f instanceof MuDiamond || f instanceof MuBox) {

@@ -19,7 +19,7 @@ public class NaiveChecker {
     public HashSet<Integer> eval(GenericMuFormula f) {
         iterations = 0;
         HashSet<Integer> out = evaluate(f);
-        System.out.println(iterations);
+        System.out.println("Number of fixed point iterations: " + iterations);
         return out;
     }
 
@@ -62,8 +62,10 @@ public class NaiveChecker {
             nts.removeAll( ts );
 
             HashSet<Integer>[] revAdj = states.revAdj.get(g.getAction());
-            for (Integer t: nts) {
-                out.removeAll( revAdj[t] );
+            if (revAdj != null) {
+                for (Integer t : nts) {
+                    out.removeAll(revAdj[t]);
+                }
             }
             return out;
         }
@@ -73,8 +75,10 @@ public class NaiveChecker {
             HashSet<Integer> out = new HashSet<>();
 
             HashSet<Integer>[] revAdj = states.revAdj.get(g.getAction());
-            for (Integer t: ts) {
-                out.addAll( revAdj[t] );
+            if (revAdj != null) {
+                for (Integer t : ts) {
+                    out.addAll(revAdj[t]);
+                }
             }
             return out;
         }
