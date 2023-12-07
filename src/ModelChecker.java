@@ -6,6 +6,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -88,22 +89,32 @@ public class ModelChecker {
                         formula = FormulaParser.parseFormula(file);
                         file.close();
 
+                        HashSet<Integer> out;
+
                         if (useNaive) {
                             System.out.println("Using Naive Algorithm.");
                             startTime = System.nanoTime();
-                            System.out.println("States that satisfy formula: " + nvc.eval(formula));
+                            out = nvc.eval(formula);
                             endTime = System.nanoTime();
-                            runtime = (endTime - startTime) / 1000000.0;
-                            System.out.println("Evaluation time: " + runtime);
+
 
                         } else {
                             System.out.println("Using Emerson-Lei Algorithm.");
                             startTime = System.nanoTime();
-                            System.out.println("States that satisfy formula: " + elc.eval(formula));
+                            out = elc.eval(formula);
                             endTime = System.nanoTime();
-                            runtime = (endTime - startTime) / 1000000.0;
-                            System.out.println("Evaluation time: " + runtime);
                         }
+
+                        if (list.size() > 2 && list.get(2).equals("-all")) {
+                            System.out.println("States that satisfy the formula: " + out);
+                        } else {
+                            String sat = out.contains(states.initial) ? "satisfies " : "does not satisfy ";
+                            System.out.println("The initial state " + states.initial + " " + sat + "the formula.");
+                        }
+
+                        runtime = (endTime - startTime) / 1000000.0;
+                        System.out.println("Evaluation time: " + runtime + " milliseconds");
+
                     }
 
                 } else if (isCommand(list.get(0), "toggle")) {
@@ -178,9 +189,8 @@ public class ModelChecker {
         System.out.println();
         System.out.println("Command:    Parameter:     Description:");
         System.out.println("cd          dir            Set base directory (alias base, path).");
-        System.out.println("                           After setting all files/paths are relative the the base directory.");
         System.out.println("load        file           Load a state space from file.");
-        System.out.println("eval        file           Loads a mu formula from file, then evaluates it for the loaded state space.");
+        System.out.println("eval        file           Loads a mu formula from file, then evaluates it for the loaded state space. Use '-all' flag (at the end) to output all states that satisfy the formula.");
         System.out.println("toggle                     Toggles between Naive and Emerson-Lei Algorithm.");
         System.out.println("use         alg            Set specific algorithm ('nv' for naive and 'el' for Emerson-Lei).");
         System.out.println("help                       Print this help screen (alias h).");
