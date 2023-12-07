@@ -19,10 +19,16 @@ public class FormulaParser {
 
     public static GenericMuFormula parseFormula(Scanner scanner) throws ParseException, UnexpectedException {
 
-        i = 0;
+        do {
+            input = scanner.nextLine().toCharArray();
+            i = 0;
+            skipWhiteSpaces();
+        } while ( (input.length == 0 || !formulaFirstSet.contains(input[i])) && scanner.hasNext() );
+
+
         rid = 0;
         int fid = 0;
-        input = scanner.nextLine().toCharArray();
+
 
         GenericMuFormula f = parse(fid);
         f = toPNF(f);
