@@ -48,7 +48,6 @@ public class ModelChecker {
             Path[] formulas = new Path[]{};
             boolean all = false;
             boolean useNaive = false;
-            boolean bench = false;
             int repeat = 1;
 
 
@@ -108,14 +107,10 @@ public class ModelChecker {
                     repeat = Integer.parseInt( arg.split("=")[1] );
                 }
 
-                else if (arg.startsWith("-b")) {
-                    bench = true;
-                }
-
             }
 
             try {
-                evaluateAll(stateSpaces, formulas, useNaive, all, bench, repeat);
+                evaluateAll(stateSpaces, formulas, useNaive, all, repeat);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -128,7 +123,7 @@ public class ModelChecker {
 
     }
 
-    private static void evaluateAll(Path[] stateSpaces, Path[] formulas, boolean useNaive, boolean all, boolean bench, int repeat) throws IOException, ParseException {
+    private static void evaluateAll(Path[] stateSpaces, Path[] formulas, boolean useNaive, boolean all, int repeat) throws IOException, ParseException {
 
         Scanner scanner;
         GenericMuFormula formula;
@@ -140,7 +135,7 @@ public class ModelChecker {
 
         SimpleLogger.writeln("Using " + (useNaive ? "Naive Algorithm." : "Emerson-Lei Algorithm."));
 
-        if (bench) warmUp(stateSpaces[0], formulas[0], useNaive);
+        if (repeat > 1) warmUp(stateSpaces[0], formulas[0], useNaive);
 
         for (Path stateSpace : stateSpaces) {
 
@@ -198,7 +193,9 @@ public class ModelChecker {
                     }
                     SimpleLogger.writeln("");
                 }
+                if (SimpleLogger.toFile()) System.out.println("    Completed " + form.getFileName());
             }
+            if (SimpleLogger.toFile()) System.out.println("COMPLETED: " + stateSpace.getFileName());
         }
     }
 
@@ -214,12 +211,12 @@ public class ModelChecker {
             else checker = new ELChecker(ss);
 
             scanner = new Scanner(form);
-            GenericMuFormula formula = FormulaParser.parseFormula(scanner);
+            GenericMuFormula formula = FormulaParser.parseFormula(scanner, true);
             scanner.close();
 
             checker.eval(formula);
         } catch (Exception e) {
-            System.out.println("Failed during warp-up");
+            System.out.println("Failed during warm-up");
         }
     }
 
@@ -251,10 +248,10 @@ public class ModelChecker {
 
                 String command = list.get(0);
 
-                if (equals(command, "load")) load(basePath, list.get(0));
+                if (equals(command, "load")) load(basePath, list.get(1));
 
                 else if (equals(command, "eval"))
-                    eval(basePath, command, useNaive, (list.size() > 2 && list.get(2).equals("-all")) );
+                    eval(basePath, list.get(1), useNaive, (list.size() > 2 && list.get(2).equals("-all")) );
 
                 else if (equals(command, "toggle")) {
 
@@ -320,7 +317,7 @@ public class ModelChecker {
             System.out.println("StateSpace loaded");
 
         } catch (NoSuchFileException e) {
-            System.out.println("File not found!");
+            System.out.println("File: '" + basePath.resolve(Paths.get(fileLoc)) + "' not found!");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -353,6 +350,8 @@ public class ModelChecker {
                     endTime = System.nanoTime();
                 }
 
+                System.out.println("Number of fixed point iterations: " + (useNaive ? nvc.iterations : elc.iterations));
+
                 if (all) {
                     System.out.println("States that satisfy the formula: " + out);
                 } else {
@@ -364,6 +363,8 @@ public class ModelChecker {
                 System.out.println("Evaluation time: " + runtime + " milliseconds");
 
             }
+        } catch (NoSuchFileException e) {
+            System.out.println("File: '" + basePath.resolve(Paths.get(fileLoc)) + "' not found!");
         } catch (Exception e) {
             e.printStackTrace();
         }

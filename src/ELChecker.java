@@ -8,18 +8,18 @@ public class ELChecker extends Checker {
     private final StateSpace states;
 
     // RecVar -> Set of states
-    private final HashMap<Integer, HashSet<Integer>> A;
+    private HashMap<Integer, HashSet<Integer>> A;
 
     public ELChecker(StateSpace states) {
         this.states = states;
-        A = new HashMap<>();
     }
 
     public HashSet<Integer> eval(GenericMuFormula f) {
-        init(f);
         iterations = 0;
-        HashSet<Integer> out = evaluate(f);
-        return out;
+        A = new HashMap<>();
+
+        init(f);
+        return evaluate(f);
     }
 
     private void init(GenericMuFormula f) {

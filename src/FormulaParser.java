@@ -15,24 +15,43 @@ public class FormulaParser {
     private static int rid;
     private static char[] input;
 
-    private static final HashMap<Character, RecursionVariable> recVariables = new HashMap<>();
+    private static HashMap<Character, RecursionVariable> recVariables = new HashMap<>();
 
     public static GenericMuFormula parseFormula(Scanner scanner) throws ParseException, UnexpectedException {
+        return parseFormula(scanner, false);
+    }
+
+    public static GenericMuFormula parseFormula(Scanner scanner, boolean suppressLog) throws ParseException, UnexpectedException {
+
+        String in;
 
         do {
-            input = scanner.nextLine().toCharArray();
+            in = scanner.nextLine();
             i = 0;
-            skipWhiteSpaces();
-        } while ( (input.length == 0 || !formulaFirstSet.contains(input[i])) && scanner.hasNext() );
+            while (i < in.length() && in.charAt(i) == ' ') i++;
+        } while ( (in.isEmpty() || !formulaFirstSet.contains( in.charAt(i) )) && scanner.hasNext() );
 
+        if (scanner.hasNext()) {
+            StringBuilder sb = new StringBuilder( in );
 
+            do  {
+                sb.append(scanner.nextLine());
+            } while (scanner.hasNext());
+
+            input = sb.toString().toCharArray();
+
+        } else {
+            input = in.toCharArray();
+        }
+
+        recVariables = new HashMap<>();
         rid = 0;
         int fid = 0;
 
 
         GenericMuFormula f = parse(fid);
         f = toPNF(f);
-        printStatistics(f);
+        if (!suppressLog) printStatistics(f);
 
         return f;
     }
@@ -347,7 +366,7 @@ public class FormulaParser {
 
     private static String parseActionName() {
         StringBuilder n = new StringBuilder();
-        while ( Character.isLowerCase(input[i]) ) {
+        while ( Character.isLowerCase(input[i]) || Character.isDigit(input[i]) || input[i] == '_' ) {
             n.append(input[i]);
             i++;
         }
@@ -488,7 +507,7 @@ public class FormulaParser {
 
     private static void requiredWhiteSpace() throws ParseException {
         if (input[i] != ' ') {
-            throw new ParseException("Unexpected character " + input[i] + ", required whitespace!", i);
+            throw new ParseException("Unexpected character '" + input[i] + "', required whitespace!", i);
         } else {
             skipWhiteSpaces();
         }
@@ -504,7 +523,7 @@ public class FormulaParser {
 
     private static void expect(char e) throws ParseException {
         if (input[i] != e) {
-            throw new ParseException("Unexpected character " + input[i] +", expected " + e + "!", i);
+            throw new ParseException("Unexpected character '" + input[i] +"', expected '" + e + "'!", i);
         }
         i++;
     }

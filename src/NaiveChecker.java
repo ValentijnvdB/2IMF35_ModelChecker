@@ -12,13 +12,12 @@ public class NaiveChecker extends Checker {
 
     public NaiveChecker(StateSpace states) {
         this.states = states;
-        A = new HashMap<>();
     }
 
     public HashSet<Integer> eval(GenericMuFormula f) {
         iterations = 0;
-        HashSet<Integer> out = evaluate(f);
-        return out;
+        A = new HashMap<>();
+        return evaluate(f);
     }
 
     private HashSet<Integer> evaluate(GenericMuFormula f) {

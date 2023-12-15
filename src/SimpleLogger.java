@@ -45,4 +45,8 @@ public class SimpleLogger {
         write(string + "\n");
     }
 
+    public static boolean toFile() {
+        return toFile;
+    }
+
 }
